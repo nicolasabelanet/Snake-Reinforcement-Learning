@@ -29,8 +29,8 @@ BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
 
-BLOCK_SIZE = 48
-SPEED = 10
+BLOCK_SIZE = 60
+SPEED = 1000
 
 class SnakeGameAI:
 
@@ -86,7 +86,7 @@ class SnakeGameAI:
         # 3. check if game over
         reward = 0
         game_over = False
-        if self._is_collision() or self.frame_iteration > 100 * len(self.snake):
+        if self.is_collision() or self.frame_iteration > 100 * len(self.snake):
             game_over = True
             reward = -10
             return reward, game_over, self.score
@@ -106,7 +106,7 @@ class SnakeGameAI:
         # 6. reutrn game over and score
         return reward, game_over, self.score
 
-    def _is_collision(self, point = None):
+    def is_collision(self, point = None):
         
         if point is None:
             point = self.head
@@ -147,11 +147,11 @@ class SnakeGameAI:
             new_direction = clock_wise[index]
             
         elif np.array_equal(action, [0, 1, 0]):
-            next_index = (index + 1) & len(clock_wise)
+            next_index = (index + 1) % len(clock_wise)
             new_direction = clock_wise[next_index]
         
         else:
-            next_index = (index - 1) & len(clock_wise)
+            next_index = (index - 1) % len(clock_wise)
             new_direction = clock_wise[next_index]
 
         self.direction = new_direction
