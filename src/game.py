@@ -1,12 +1,16 @@
-import pygame
+SHOW_DISPLAY = True
+
+if SHOW_DISPLAY:
+    import pygame
 import random
 from collections import namedtuple
 from enum import Enum
 import numpy as np
 
 
-pygame.init()
-font = pygame.font.Font('arial.ttf', 50)
+if SHOW_DISPLAY:
+    pygame.init()
+    font = pygame.font.Font('arial.ttf', 50)
 
 # reset function
 # reward
@@ -30,7 +34,7 @@ BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 60
-SPEED = 1000
+SPEED = 0
 
 class SnakeGameAI:
 
@@ -39,9 +43,10 @@ class SnakeGameAI:
         self.height = height 
         
         # init display
-        self.display = pygame.display.set_mode((self.width, self.height))
-        pygame.display.set_caption('Snake')
-        self.clock = pygame.time.Clock()
+        if SHOW_DISPLAY:
+            self.display = pygame.display.set_mode((self.width, self.height))
+            pygame.display.set_caption('Snake')
+            self.clock = pygame.time.Clock()
         self.reset()
 
     def reset(self):
@@ -74,10 +79,11 @@ class SnakeGameAI:
         self.frame_iteration += 1
 
         # 1. collect user input
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        if SHOW_DISPLAY:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
           
         # 2. move our snake
         self._move(action) # update the head
@@ -100,8 +106,9 @@ class SnakeGameAI:
             self.snake.pop()
 
         # 5. update ui and clock
-        self._update_ui()
-        self.clock.tick(SPEED)
+        if SHOW_DISPLAY:
+            self._update_ui()
+            self.clock.tick(SPEED)
 
         # 6. reutrn game over and score
         return reward, game_over, self.score
@@ -170,18 +177,3 @@ class SnakeGameAI:
 
         self.head = Point(x, y)
         
-
-if __name__ == '__main__':
-    
-    game = SnakeGame()
-
-    # game loop
-    while True:
-        game_over, score = game.play_step()
-
-        if game_over == True:
-            break
-    
-    print('Final Score', score)
-
-    pygame.quit()

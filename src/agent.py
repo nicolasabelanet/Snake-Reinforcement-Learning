@@ -1,11 +1,11 @@
-from statistics import mean
 import torch
 import random
 import numpy as np
 from collections import deque
-from game import BLOCK_SIZE, SnakeGameAI, Direction, Point
+from game import SHOW_DISPLAY, BLOCK_SIZE, SnakeGameAI, Direction, Point
 from model import Linear_QNet, QTrainer, device
 from helper import plot
+import os 
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1_000
@@ -14,12 +14,18 @@ LR = 0.001
 class Agent:
 
     def __init__(self):
+        
         self.n_games = 0
         self.epsilon = 0 # randomness
         self.gamma = 0.9 # discount rate
         self.memory = deque(maxlen = MAX_MEMORY) # popleft()
+    
         self.model = Linear_QNet(11, 256, 3)
-        self.model.to(torch.device("cuda:0"))
+        self.model.to(device)
+
+        self.model.load()
+        self.model.eval()
+
         self.trainer = QTrainer(self.model, lr = LR, gamma = self.gamma)
     def get_state(self, game):
         
@@ -96,8 +102,10 @@ class Agent:
             final_move[move] = 1
         else:
             state0 = torch.tensor(state, dtype = torch.float)
-            prediciton = self.model(state0.cuda())
+            state0 = state0.cuda()
+            prediciton = self.model(state0)
             move = torch.argmax(prediciton).item()
+            final_move[move] = 1
 
         return final_move
 
@@ -143,8 +151,11 @@ def train():
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
-            plot(plot_scores, plot_mean_scores)
+            if SHOW_DISPLAY:
+                plot(plot_scores, plot_mean_scores)
 
 if __name__ == '__main__':
     train()
 
+
+        
